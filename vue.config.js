@@ -4,7 +4,7 @@ const version = JSON.parse(packageJson).version || '';
 const webpack = require('webpack');
 
 module.exports = {
-    publicPath: '',
+    publicPath: 'auto',
     transpileDependencies: ['vuetify'],
     configureWebpack: {
         plugins: [

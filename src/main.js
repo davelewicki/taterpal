@@ -1,6 +1,3 @@
-// Set Webpack public path dynamically at runtime based on the location pathname
-// eslint-disable-next-line no-undef, camelcase
-__webpack_public_path__ = window.location.pathname.includes('/taterpal/') ? '/taterpal/' : '/';
 
 // Unregister service workers in development on localhost to prevent caching issues
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {

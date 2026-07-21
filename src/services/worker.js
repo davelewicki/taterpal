@@ -4,19 +4,6 @@ import {get,
     set
 } from 'idb-keyval';
 
-function getBasePath() {
-    if (typeof self !== 'undefined' && self.location && self.location.pathname) {
-        if (self.location.pathname.includes('/taterpal/')) {
-            return '/taterpal/';
-        }
-    }
-    return '/';
-}
-
-// eslint-disable-next-line no-undef, camelcase
-__webpack_public_path__ = getBasePath();
-
-
 class FolkFriendWASMWrapper {
     constructor() {
         this.folkfriendWASM = null;
@@ -32,8 +19,10 @@ class FolkFriendWASMWrapper {
             this.setLoadedSampleRate = resolve;
         });
 
+        // eslint-disable-next-line no-undef
         import ('@/wasm/folkfriend.js').then(async wasm => {
-            await wasm.default(`${getBasePath()}folkfriend_bg.wasm`);
+            // eslint-disable-next-line no-undef
+            await wasm.default(`${__webpack_public_path__}folkfriend_bg.wasm`);
             this.folkfriendWASM = new wasm.FolkFriendWASM();
             this.setLoadedWASM();
         });
@@ -51,7 +40,8 @@ class FolkFriendWASMWrapper {
     }
 
     async fetchTuneIndexMetadata() {
-        let url = `${getBasePath()}res/nud-meta.json`;
+        // eslint-disable-next-line no-undef
+        let url = `${__webpack_public_path__}res/nud-meta.json`;
         let indexData = await fetch(url)
             .then((response) => response.json())
             .catch((err) => console.log(err));
@@ -61,7 +51,8 @@ class FolkFriendWASMWrapper {
     async fetchTuneIndexData() {
         console.time('index-fetch');
 
-        let url = `${getBasePath()}res/folkfriend-non-user-data.json`;
+        // eslint-disable-next-line no-undef
+        let url = `${__webpack_public_path__}res/folkfriend-non-user-data.json`;
 
         // Fetch
         let indexData = await fetch(url)
