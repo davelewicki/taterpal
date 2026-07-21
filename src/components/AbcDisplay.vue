@@ -169,10 +169,15 @@ export default {
                 this.midiBuffer = new ABCJS.synth.CreateSynth();
 
                 // midiBuffer.init preloads and caches all the notes needed. There may be significant network traffic here.
+                const hasTempo = /^\s*Q:\s*/m.test(this.abcText);
+                const millisecondsPerMeasure = hasTempo
+                    ? this.abcVisual.millisecondsPerMeasure()
+                    : this.abcVisual.millisecondsPerMeasure() * 2.0;
+
                 return this.midiBuffer.init({
                     visualObj: this.abcVisual,
                     audioContext: audioContext,
-                    millisecondsPerMeasure: this.abcVisual.millisecondsPerMeasure() * 2.0
+                    millisecondsPerMeasure: millisecondsPerMeasure
                 }).then(response => {
                     // midiBuffer.prime actually builds the output buffer.
                     return this.midiBuffer.prime();
