@@ -260,7 +260,7 @@ export default {
 
                     this.midiBuffer = new ABCJS.synth.CreateSynth();
 
-                    const hasTempo = /^\s*Q:\s*/m.test(this.abcText);
+                    const hasTempo = /^\s*Q:.*\d/m.test(this.abcText);
                     const millisecondsPerMeasure = (abcVisual && typeof abcVisual.millisecondsPerMeasure === 'function')
                         ? (hasTempo ? abcVisual.millisecondsPerMeasure() : abcVisual.millisecondsPerMeasure() * 2.0)
                         : (hasTempo ? 2000 : 4000);
