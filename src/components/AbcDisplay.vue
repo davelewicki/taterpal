@@ -172,7 +172,7 @@ export default {
                 return this.midiBuffer.init({
                     visualObj: this.abcVisual,
                     audioContext: audioContext,
-                    millisecondsPerMeasure: this.abcVisual.millisecondsPerMeasure()
+                    millisecondsPerMeasure: this.abcVisual.millisecondsPerMeasure() * 2.0
                 }).then(response => {
                     // midiBuffer.prime actually builds the output buffer.
                     return this.midiBuffer.prime();
