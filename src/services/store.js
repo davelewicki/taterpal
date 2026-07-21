@@ -5,9 +5,7 @@ import eventBus from '@/eventBus.js';
 import {get,
     set
 } from 'idb-keyval';
-import {
-    logEvent
-} from 'firebase/analytics';
+
 
 // TODO load from local storage or similar
 const USER_SETTING_DEFAULTS = {
@@ -80,11 +78,7 @@ class Store {
     }
 
     async logAnalyticsEvent(eventLabel, eventData) {
-        await this.analyticsLoaded;
-        if (process.env.NODE_ENV === 'production') {
-            console.debug('EVENT LOGGED', eventLabel);
-            logEvent(this.analytics, eventLabel, eventData);
-        }
+        // Analytics disabled in fork
     }
 
     isReady() {

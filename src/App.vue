@@ -167,9 +167,6 @@
 
 
 <script>
-import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
-
 import ffBackend from '@/services/backend.js';
 import store from '@/services/store.js';
 import eventBus from '@/eventBus.js';
@@ -291,23 +288,7 @@ export default {
 };
 
 async function initAnalytics() {
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-        // This **IS** okay to be public !!!
-        apiKey: 'AIzaSyBy36nafCGgjwzQ1FvxUhHd6RyBZ_YnPis',
-        authDomain: 'folk-friend.firebaseapp.com',
-        databaseURL: 'https://folk-friend.firebaseio.com',
-        projectId: 'folk-friend',
-        storageBucket: 'folk-friend.appspot.com',
-        messagingSenderId: '632280350288',
-        appId: '1:632280350288:web:c4869728d2b5241b1edb55'
-    };
-
-    // Initialize Firebase analytics
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    store.loadAnalytics(analytics);
-    store.logAnalyticsEvent('running_standalone', {'value': utils.checkStandalone()}).then();
+    store.loadAnalytics(null);
 }
 
 async function initSetup() {
