@@ -41,7 +41,7 @@ class FolkFriendWASMWrapper {
 
     async fetchTuneIndexMetadata() {
         // eslint-disable-next-line no-undef
-        let url = `${__webpack_public_path__}res/nud-meta.json`;
+        let url = `${__webpack_public_path__}res/nud-meta.json?_=${Date.now()}`;
         let indexData = await fetch(url)
             .then((response) => response.json())
             .catch((err) => console.log(err));
@@ -52,7 +52,7 @@ class FolkFriendWASMWrapper {
         console.time('index-fetch');
 
         // eslint-disable-next-line no-undef
-        let url = `${__webpack_public_path__}res/folkfriend-non-user-data.json`;
+        let url = `${__webpack_public_path__}res/folkfriend-non-user-data.json?_=${Date.now()}`;
 
         // Fetch
         let indexData = await fetch(url)

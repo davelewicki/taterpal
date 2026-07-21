@@ -40,5 +40,9 @@ module.exports = {
         name: 'TaterPal',
         theme_color: '#055581',
         background_color: '#055581',
+        workboxOptions: {
+            skipWaiting: true,
+            clientsClaim: true
+        }
     },
 };
