@@ -12,11 +12,25 @@
                 device, or upload an existing audio file. TaterPal runs
                 entirely in browser and works without an internet connection.
             </p>
+
+               <v-img
+                            src="@/assets/logo.svg"
+                            max-height="75%"
+                            max-width="50%"
+                            class="mx-auto MainLogo"
+                            align-left
+                            left
+                            contain
+                        />
             <p>
                 TaterPal is based entirely on the original FolkFriend app that
                 can be found at <a href=https://folkfriend.app>folkfriend.app</a>.
-                Folkfriend is opensource and the source for this can be found at
-                
+                Folkfriend is opensource and the source for the TaterPal fork can be found at
+                👉 <a href=https://github.com/davelewicki/taterpal>github.com/davelewicki/taterpal</a>
+            </p>
+            <p>
+                I've purposfully left the donor link to FolkFriend in the main menu
+                and encourage you to buy him a beer by visiting his <a href=https://donorbox.org/help-support-development-of-folkfriend>donor page</a>.
             </p>
         </v-card>
         <v-card
@@ -32,19 +46,7 @@
                 contain
             />
         </v-card>
-        <v-card class="pa-5 my-2">
-            <h1>Feedback</h1>
-            FolkFriend has been a five-year project by a single developer. 
-            Please send any bugs reports, feature requests, or general feedback, 
-            to <a
-                class="feedbackEmail"
-                href="mailto:feedback@folkfriend.app"
-            >feedback@folkfriend.app</a>.
-        </v-card>
-        <p class="AppInfo">
-            Folkfriend app version: {{ frontendVersion }}<br>Folkfriend library version:
-            {{ backendVersion }}<br>© {{ year }} Tom Wyllie. All Rights Reserved.
-        </p>
+
     </v-container>
 </template>
 
