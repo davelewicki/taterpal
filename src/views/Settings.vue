@@ -103,8 +103,18 @@
                 <v-tab key="url">
                     <v-icon left small>{{ icons.link }}</v-icon> ABC URL
                 </v-tab>
-                <v-tab key="snarch">
-                    <v-icon left small>{{ icons.cloudDownload }}</v-icon> Snarch Book
+                <v-tab key="snarch" class="d-flex align-center">
+                    <a 
+                        href="https://snarch.app" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="d-inline-flex align-center mr-1 text-decoration-none"
+                        title="Visit Snarch.app"
+                        @click.stop
+                    >
+                        <img :src="snarchLogo" alt="Snarch" style="height: 22px; width: auto;" class="mr-1" />
+                    </a>
+                    Snarch Book
                 </v-tab>
             </v-tabs>
 
@@ -171,14 +181,29 @@
                         outlined
                         dense
                     />
-                    <v-btn
-                        color="primary"
-                        :loading="loading"
-                        :disabled="!snarchForm.url.trim()"
-                        @click="importSnarchBook"
-                    >
-                        <v-icon left>{{ icons.cloudDownload }}</v-icon> Fetch & Install Snarch Book
-                    </v-btn>
+                    <div class="d-flex align-center flex-wrap">
+                        <v-btn
+                            color="primary"
+                            :loading="loading"
+                            :disabled="!snarchForm.url.trim()"
+                            @click="importSnarchBook"
+                            class="mr-2 mb-2"
+                        >
+                            <v-icon left>{{ icons.cloudDownload }}</v-icon> Fetch & Install Snarch Book
+                        </v-btn>
+                        <v-btn
+                            href="https://snarch.app"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            outlined
+                            color="primary"
+                            class="mb-2"
+                        >
+                            <img :src="snarchLogo" alt="Snarch" style="height: 18px; width: auto;" class="mr-2" />
+                            Open Snarch.app
+                            <v-icon right small>{{ icons.openInNew }}</v-icon>
+                        </v-btn>
+                    </div>
                 </v-tab-item>
             </v-tabs-items>
 
@@ -290,6 +315,7 @@ import {
     mdiExportVariant,
     mdiFileDocumentEditOutline,
     mdiLinkVariant,
+    mdiOpenInNew,
     mdiPlus,
     mdiPlusBoxOutline,
 } from '@mdi/js';
@@ -303,12 +329,14 @@ export default {
         next();
     },
     data: () => ({
+        snarchLogo: require('@/assets/snarch_logo.png'),
         icons: {
             bookMultiple: mdiBookMultiple,
             cloudDownload: mdiCloudDownload,
             delete: mdiDelete,
             fileEdit: mdiFileDocumentEditOutline,
             link: mdiLinkVariant,
+            openInNew: mdiOpenInNew,
             plus: mdiPlus,
             iosShare: mdiExportVariant,
             iosAddToHomeScreen: mdiPlusBoxOutline,

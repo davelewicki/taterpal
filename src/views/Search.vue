@@ -39,8 +39,9 @@
                         </template>
                     </v-text-field>
                     <p class="text-center caption grey--text text--darken-1">
-                        This is an Old Time fork of <a href="https://folkfriend.app" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">folkfriend.app</a> that originally audio-searched <a href="https://thesession.org" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">thesession.org</a> for Irish tunes.
-                        <br>This is experimental right now.  Playing clear individual notes will improve the search!
+                        <u>Playing clear individual notes will improve the search!</u>
+                        <br>This is an Old Time fork of <a href="https://folkfriend.app" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">folkfriend.app</a> that originally audio-searched <a href="https://thesession.org" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">thesession.org</a> for Irish tunes.
+                        <br><i><b>If Old Time isn't your thing, </b>go to settings and paste an abc file of music that you *do* want to search instead.</i>
                     </p>
                 </v-col>
             </v-row>
@@ -102,7 +103,18 @@
                     </v-card>
                 </v-col>
             </v-row>
-        </v-container>
+        <!-- Random Snarch Logo Link (Easter Egg on Search Page) -->
+        <a
+            v-if="randomSpotStyle"
+            href="https://snarch.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Visit Snarch.app"
+            class="snarchRandomLogoLink"
+            :style="randomSpotStyle"
+        >
+            <img :src="snarchLogo" alt="Snarch" style="height: 34px; width: auto;" />
+        </a>
     </div>
 </template>
 
@@ -130,6 +142,17 @@ export default {
             indexLoaded: store.state.indexLoaded,
             cartridges: [],
 
+            snarchLogo: require('@/assets/snarch_logo.png'),
+            randomSpotIndex: 0,
+            spotStyles: [
+                { top: '70px', left: '16px', position: 'fixed', zIndex: 10 },
+                { top: '70px', right: '16px', position: 'fixed', zIndex: 10 },
+                { bottom: '24px', left: '16px', position: 'fixed', zIndex: 10 },
+                { bottom: '24px', right: '16px', position: 'fixed', zIndex: 10 },
+                { top: '48%', left: '12px', position: 'fixed', zIndex: 10 },
+                { top: '48%', right: '12px', position: 'fixed', zIndex: 10 },
+            ],
+
             icons: {
                 bookMultiple: mdiBookMultiple,
                 magnify: mdiMagnify,
@@ -141,10 +164,19 @@ export default {
     computed: {
         hasCustomCartridges() {
             return this.cartridges.some(c => !c.isDefault);
+        },
+        randomSpotStyle() {
+            return this.spotStyles[this.randomSpotIndex] || this.spotStyles[0];
         }
     },
     created: function () {
+        this.randomizeSnarchSpot();
+
         eventBus.$emit('parentViewActivated');
+
+        eventBus.$on('parentViewActivated', () => {
+            this.randomizeSnarchSpot();
+        });
 
         if(!this.indexLoaded) {
             eventBus.$on('indexLoaded', () => {
@@ -160,6 +192,9 @@ export default {
         this.loadCartridges();
     },
     methods: {
+        randomizeSnarchSpot() {
+            this.randomSpotIndex = Math.floor(Math.random() * this.spotStyles.length);
+        },
         async loadCartridges() {
             this.cartridges = await cartridgeStore.getCartridges();
         },
@@ -242,5 +277,15 @@ export default {
 
 .noFlexGrow {
     flex-grow: 0;
+}
+
+.snarchRandomLogoLink {
+    transition: transform 0.25s ease-in-out, opacity 0.25s ease-in-out;
+    opacity: 0.85;
+}
+
+.snarchRandomLogoLink:hover {
+    transform: scale(1.2);
+    opacity: 1.0;
 }
 </style>
