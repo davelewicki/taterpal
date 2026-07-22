@@ -155,16 +155,15 @@ export default {
             snarchLogo: require('@/assets/snarch_logo.png'),
             randomSpotIndex: 0,
             spotStyles: [
-                // Region A: Above / around the top of the Microphone button
-                { top: '15px', left: 'calc(50% - 130px)', position: 'absolute', zIndex: 5 },
-                { top: '15px', right: 'calc(50% - 130px)', position: 'absolute', zIndex: 5 },
-                { top: '20px', left: '20px', position: 'absolute', zIndex: 5 },
-                { top: '20px', right: '20px', position: 'absolute', zIndex: 5 },
-
-                // Region B: Below the Search Bar
-                { top: '340px', left: 'calc(50% - 180px)', position: 'absolute', zIndex: 5 },
-                { top: '340px', right: 'calc(50% - 180px)', position: 'absolute', zIndex: 5 },
-                { top: '445px', left: 'calc(50% - 30px)', position: 'absolute', zIndex: 5 },
+                // All spots restricted strictly to the top 18% of the page
+                { top: '10px', left: 'calc(50% - 135px)', position: 'absolute', zIndex: 5 },
+                { top: '10px', right: 'calc(50% - 135px)', position: 'absolute', zIndex: 5 },
+                { top: '14px', left: '20px', position: 'absolute', zIndex: 5 },
+                { top: '14px', right: '20px', position: 'absolute', zIndex: 5 },
+                { top: '45px', left: 'calc(50% - 165px)', position: 'absolute', zIndex: 5 },
+                { top: '45px', right: 'calc(50% - 165px)', position: 'absolute', zIndex: 5 },
+                { top: '55px', left: '24px', position: 'absolute', zIndex: 5 },
+                { top: '55px', right: '24px', position: 'absolute', zIndex: 5 },
             ],
 
             icons: {
