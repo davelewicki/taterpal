@@ -35,6 +35,7 @@
                     @change="settingsChanged"
                 />
             </v-row>
+        </v-card>
         <v-card class="pa-5 my-3">
             <h1 class="pb-2">
                 <v-icon class="mr-2 pb-1" color="primary">{{ icons.bookMultiple }}</v-icon>
