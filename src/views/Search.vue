@@ -103,6 +103,7 @@
                     </v-card>
                 </v-col>
             </v-row>
+        </v-container>
         <!-- Random Snarch Logo Link (Easter Egg on Search Page) -->
         <a
             v-if="randomSpotStyle"
