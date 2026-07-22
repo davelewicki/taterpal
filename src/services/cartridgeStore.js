@@ -221,11 +221,13 @@ class CartridgeStore {
 
     async getMergedCartridgesData(defaultTuneIndexData = null) {
         const meta = await this.getCartridges();
-        const enabledCartridges = meta.filter(c => c.enabled);
+        const enabledCartridges = meta.filter(c => c.enabled && (c.installed !== false || c.isDefault));
 
         const mergedSettings = {};
         const mergedAliases = {};
         const mergedAbcStrings = {};
+
+        let cartridgeBaseOffset = 1000000;
 
         for (const cartridge of enabledCartridges) {
             if (cartridge.id === 'default') {
@@ -236,23 +238,26 @@ class CartridgeStore {
                 const defaultAbc = defaultTuneIndexData.abcStrings;
 
                 for (const settingId in defaultSettings) {
-                    const prefixedSettingId = `def_${settingId}`;
+                    const sIdNum = parseInt(settingId, 10);
                     const settingObj = defaultSettings[settingId];
-                    const originalTuneId = settingObj.tune_id || settingId;
-                    const prefixedTuneId = `def_${originalTuneId}`;
+                    const tIdNum = parseInt(settingObj.tune_id || settingId, 10);
 
-                    mergedSettings[prefixedSettingId] = {
+                    const finalSettingId = isNaN(sIdNum) ? settingId : sIdNum;
+                    const finalTuneId = isNaN(tIdNum) ? (settingObj.tune_id || settingId) : tIdNum;
+
+                    mergedSettings[finalSettingId] = {
                         ...settingObj,
-                        tune_id: prefixedTuneId,
+                        tune_id: finalTuneId,
                         cartridgeName: cartridge.name,
                         cartridgeId: 'default'
                     };
-                    mergedAbcStrings[prefixedSettingId] = defaultAbc[settingId] || '';
+                    mergedAbcStrings[finalSettingId] = defaultAbc[settingId] || '';
                 }
 
                 for (const tuneId in defaultAliases) {
-                    const prefixedTuneId = `def_${tuneId}`;
-                    mergedAliases[prefixedTuneId] = defaultAliases[tuneId];
+                    const tIdNum = parseInt(tuneId, 10);
+                    const finalTuneId = isNaN(tIdNum) ? tuneId : tIdNum;
+                    mergedAliases[finalTuneId] = defaultAliases[tuneId];
                 }
             } else {
                 const cartridgeData = await get(`cartridge_db_${cartridge.id}`);
@@ -260,27 +265,41 @@ class CartridgeStore {
 
                 const cSettings = cartridgeData.indexData.settings;
                 const cAliases = cartridgeData.indexData.aliases;
-                const cAbc = cartridgeData.abcStrings;
+                const cAbc = cartridgeData.abcStrings || {};
 
-                for (const settingId in cSettings) {
-                    const prefixedSettingId = `${cartridge.id}_${settingId}`;
-                    const settingObj = cSettings[settingId];
-                    const originalTuneId = settingObj.tune_id || settingId;
-                    const prefixedTuneId = `${cartridge.id}_${originalTuneId}`;
+                const tuneIdMap = {};
+                let settingCounter = 1;
 
-                    mergedSettings[prefixedSettingId] = {
+                for (const origSettingId in cSettings) {
+                    const settingObj = cSettings[origSettingId];
+                    const origTuneId = String(settingObj.tune_id || origSettingId);
+
+                    const parsedOrigTuneId = parseInt(origTuneId, 10);
+                    if (!tuneIdMap[origTuneId]) {
+                        tuneIdMap[origTuneId] = !isNaN(parsedOrigTuneId) ? (cartridgeBaseOffset + parsedOrigTuneId) : (cartridgeBaseOffset + settingCounter);
+                    }
+
+                    const parsedOrigSettingId = parseInt(origSettingId, 10);
+                    const numericSettingId = !isNaN(parsedOrigSettingId) ? (cartridgeBaseOffset + parsedOrigSettingId) : (cartridgeBaseOffset + settingCounter);
+                    const numericTuneId = tuneIdMap[origTuneId];
+                    settingCounter++;
+
+                    mergedSettings[numericSettingId] = {
                         ...settingObj,
-                        tune_id: prefixedTuneId,
+                        tune_id: numericTuneId,
                         cartridgeName: cartridge.name,
                         cartridgeId: cartridge.id
                     };
-                    mergedAbcStrings[prefixedSettingId] = cAbc[settingId] || '';
+                    mergedAbcStrings[numericSettingId] = cAbc[origSettingId] || '';
                 }
 
-                for (const tuneId in cAliases) {
-                    const prefixedTuneId = `${cartridge.id}_${tuneId}`;
-                    mergedAliases[prefixedTuneId] = cAliases[tuneId];
+                for (const origTuneId in cAliases) {
+                    const parsedOrigTuneId = parseInt(origTuneId, 10);
+                    const numericTuneId = tuneIdMap[origTuneId] || (!isNaN(parsedOrigTuneId) ? (cartridgeBaseOffset + parsedOrigTuneId) : (cartridgeBaseOffset + settingCounter++));
+                    mergedAliases[numericTuneId] = cAliases[origTuneId];
                 }
+
+                cartridgeBaseOffset += 1000000;
             }
         }
 
