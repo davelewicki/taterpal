@@ -117,7 +117,7 @@
             :style="randomSpotStyle"
         >
             <img :src="snarchLogo" alt="Snarch" style="height: 34px; width: auto;" />
-            <span class="grey--text text--darken-1 caption font-weight-medium mt-1" style="font-size: 0.75rem; letter-spacing: 0.02em; line-height: 1;">
+            <span class="grey--text text--darken-1 caption font-weight-medium mt-1" style="font-size: 0.75rem; letter-spacing: 0.02em; line-height: 1; opacity: 0.25;">
                 snarch.app
             </span>
         </a>
