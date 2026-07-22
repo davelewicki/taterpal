@@ -155,12 +155,16 @@ export default {
             snarchLogo: require('@/assets/snarch_logo.png'),
             randomSpotIndex: 0,
             spotStyles: [
-                { top: '70px', left: '16px', position: 'fixed', zIndex: 10 },
-                { top: '70px', right: '16px', position: 'fixed', zIndex: 10 },
-                { bottom: '24px', left: '16px', position: 'fixed', zIndex: 10 },
-                { bottom: '24px', right: '16px', position: 'fixed', zIndex: 10 },
-                { top: '48%', left: '12px', position: 'fixed', zIndex: 10 },
-                { top: '48%', right: '12px', position: 'fixed', zIndex: 10 },
+                // Region A: Above / around the top of the Microphone button
+                { top: '15px', left: 'calc(50% - 130px)', position: 'absolute', zIndex: 5 },
+                { top: '15px', right: 'calc(50% - 130px)', position: 'absolute', zIndex: 5 },
+                { top: '20px', left: '20px', position: 'absolute', zIndex: 5 },
+                { top: '20px', right: '20px', position: 'absolute', zIndex: 5 },
+
+                // Region B: Below the Search Bar
+                { top: '340px', left: 'calc(50% - 180px)', position: 'absolute', zIndex: 5 },
+                { top: '340px', right: 'calc(50% - 180px)', position: 'absolute', zIndex: 5 },
+                { top: '445px', left: 'calc(50% - 30px)', position: 'absolute', zIndex: 5 },
             ],
 
             icons: {
@@ -278,6 +282,11 @@ export default {
 </script>
 
 <style scoped>
+.search {
+    position: relative;
+    min-height: 100%;
+}
+
 .tuneProgress {
     max-width: 50%;
     opacity: 1;
