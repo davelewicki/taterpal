@@ -152,15 +152,15 @@ export default {
             snarchLogo: require('@/assets/snarch_logo.png'),
             randomSpotIndex: 0,
             spotStyles: [
-                // All spots positioned directly resting above search bar on the right 50%
-                { top: '-12px', right: '10px', position: 'absolute', zIndex: 5 },
-                { top: '-12px', right: '60px', position: 'absolute', zIndex: 5 },
-                { top: '-12px', right: '120px', position: 'absolute', zIndex: 5 },
-                { top: '-12px', right: '180px', position: 'absolute', zIndex: 5 },
-                { top: '-12px', left: '55%', position: 'absolute', zIndex: 5 },
-                { top: '-12px', left: '68%', position: 'absolute', zIndex: 5 },
-                { top: '-12px', left: '80%', position: 'absolute', zIndex: 5 },
-                { top: '-12px', left: '90%', position: 'absolute', zIndex: 5 },
+                // All spots positioned 10px higher directly above search bar on the right 50%
+                { top: '-22px', right: '10px', position: 'absolute', zIndex: 5 },
+                { top: '-22px', right: '60px', position: 'absolute', zIndex: 5 },
+                { top: '-22px', right: '120px', position: 'absolute', zIndex: 5 },
+                { top: '-22px', right: '180px', position: 'absolute', zIndex: 5 },
+                { top: '-22px', left: '55%', position: 'absolute', zIndex: 5 },
+                { top: '-22px', left: '68%', position: 'absolute', zIndex: 5 },
+                { top: '-22px', left: '80%', position: 'absolute', zIndex: 5 },
+                { top: '-22px', left: '90%', position: 'absolute', zIndex: 5 },
             ],
 
             icons: {
