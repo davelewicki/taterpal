@@ -69,9 +69,27 @@ class CartridgeStore {
         if (item) {
             if (id === 'cartridge_original_folkfriend' && enabled && !item.installed) {
                 // User turned switch ON for uninstalled preset -> download and install!
-                return await this.installFolkFriendPreset();
+                await this.installFolkFriendPreset();
+                const freshMeta = await this.getCartridges();
+                const defaultItem = freshMeta.find(c => c.id === 'default');
+                if (defaultItem) defaultItem.enabled = false;
+                await this.saveCartridgesMeta(freshMeta);
+                return;
             }
+
             item.enabled = enabled;
+
+            // Enforce mutual exclusivity between Default Old-Time and Irish Collection
+            if (enabled) {
+                if (id === 'default') {
+                    const irishItem = meta.find(c => c.id === 'cartridge_original_folkfriend');
+                    if (irishItem) irishItem.enabled = false;
+                } else if (id === 'cartridge_original_folkfriend') {
+                    const defaultItem = meta.find(c => c.id === 'default');
+                    if (defaultItem) defaultItem.enabled = false;
+                }
+            }
+
             await this.saveCartridgesMeta(meta);
         }
     }
