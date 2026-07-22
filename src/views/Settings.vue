@@ -96,6 +96,31 @@
                 Add New Cartridge
             </h2>
 
+            <!-- Available Preset Banner (shown when Original FolkFriend is NOT installed) -->
+            <v-card v-if="!hasFolkFriendPreset" outlined class="mb-4 pa-3 green lighten-5" style="border: 1px solid #80CBC4;">
+                <div class="d-flex align-center flex-wrap">
+                    <v-icon left color="teal darken-2" class="mr-2">{{ icons.musicBox }}</v-icon>
+                    <div class="flex-grow-1 my-1">
+                        <div class="subtitle-2 font-weight-bold teal--text text--darken-4">
+                            Original FolkFriend Irish Collection (thesession.org)
+                        </div>
+                        <div class="caption text--secondary">
+                            Install the original ~30,000 Irish traditional tune database as an additional search cartridge.
+                        </div>
+                    </div>
+                    <v-btn
+                        color="teal darken-2"
+                        dark
+                        small
+                        :loading="loading"
+                        @click="installFolkFriendPreset"
+                        class="my-1"
+                    >
+                        <v-icon left small>{{ icons.plus }}</v-icon> Install Irish Collection
+                    </v-btn>
+                </div>
+            </v-card>
+
             <v-tabs v-model="importTab" color="primary" class="mb-3">
                 <v-tab key="text">
                     <v-icon left small>{{ icons.fileEdit }}</v-icon> Paste ABC
@@ -315,6 +340,7 @@ import {
     mdiExportVariant,
     mdiFileDocumentEditOutline,
     mdiLinkVariant,
+    mdiMusicBox,
     mdiOpenInNew,
     mdiPlus,
     mdiPlusBoxOutline,
@@ -336,6 +362,7 @@ export default {
             delete: mdiDelete,
             fileEdit: mdiFileDocumentEditOutline,
             link: mdiLinkVariant,
+            musicBox: mdiMusicBox,
             openInNew: mdiOpenInNew,
             plus: mdiPlus,
             iosShare: mdiExportVariant,
@@ -371,6 +398,11 @@ export default {
         deleteDialog: false,
         cartridgeToDelete: null
     }),
+    computed: {
+        hasFolkFriendPreset() {
+            return this.cartridges.some(c => c.id === 'cartridge_original_folkfriend');
+        }
+    },
     created: function() {
         this.ua = utils.checkUserAgent();
         this.loadCartridges();
@@ -385,6 +417,7 @@ export default {
         badgeColor(sourceType) {
             switch (sourceType) {
                 case 'built-in': return 'primary';
+                case 'preset': return 'teal darken-1';
                 case 'abc_text': return 'teal';
                 case 'abc_url': return 'deep-purple';
                 case 'snarch_url': return 'amber darken-2';
@@ -394,10 +427,27 @@ export default {
         badgeLabel(sourceType) {
             switch (sourceType) {
                 case 'built-in': return 'Built-in';
+                case 'preset': return 'TheSession Irish';
                 case 'abc_text': return 'Pasted ABC';
                 case 'abc_url': return 'ABC URL';
                 case 'snarch_url': return 'Snarch Book';
                 default: return 'Custom';
+            }
+        },
+        async installFolkFriendPreset() {
+            this.loading = true;
+            this.statusMessage = '';
+            try {
+                const cartridge = await cartridgeStore.addPresetFolkFriendCartridge();
+                await ffBackend.reloadActiveCartridges();
+                await this.loadCartridges();
+                this.statusType = 'success';
+                this.statusMessage = `Successfully installed "${cartridge.name}" (${cartridge.tuneCount.toLocaleString()} tunes)!`;
+            } catch (err) {
+                this.statusType = 'error';
+                this.statusMessage = err.message || 'Failed to install Irish database preset.';
+            } finally {
+                this.loading = false;
             }
         },
         formatDate(isoStr) {

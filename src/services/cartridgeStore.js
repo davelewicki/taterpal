@@ -62,6 +62,51 @@ class CartridgeStore {
         await del(`cartridge_db_${id}`);
     }
 
+    async addPresetFolkFriendCartridge() {
+        const id = 'cartridge_original_folkfriend';
+        const meta = await this.getCartridges();
+        if (meta.some(c => c.id === id)) {
+            throw new Error('Original FolkFriend Irish Collection is already installed.');
+        }
+
+        const url = 'https://folkfriend-app-data.web.app/folkfriend-non-user-data.json';
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch original Irish database (HTTP ${response.status})`);
+        }
+        const data = await response.json();
+
+        const abcStrings = {};
+        for (const settingId in data.settings) {
+            abcStrings[settingId] = data.settings[settingId].abc;
+            data.settings[settingId].abc = '';
+        }
+
+        const tuneCount = Object.keys(data.settings).length;
+
+        const cartridgeData = {
+            indexData: data,
+            abcStrings: abcStrings
+        };
+
+        await set(`cartridge_db_${id}`, cartridgeData);
+
+        const newCartridge = {
+            id,
+            name: 'Original FolkFriend Irish Collection (thesession.org)',
+            tuneCount,
+            enabled: true,
+            isDefault: false,
+            sourceType: 'preset',
+            sourceUrl: url,
+            createdAt: new Date().toISOString()
+        };
+
+        meta.push(newCartridge);
+        await this.saveCartridgesMeta(meta);
+        return newCartridge;
+    }
+
     async addCartridgeFromAbcText(name, rawAbcText, sourceType = 'abc_text', sourceUrl = '') {
         const compiled = compileAbcToDatabase(rawAbcText, name);
         const tuneCount = Object.keys(compiled.settings).length;

@@ -206,6 +206,7 @@ export default {
         badgeColor(sourceType) {
             switch (sourceType) {
                 case 'built-in': return 'primary';
+                case 'preset': return 'teal darken-1';
                 case 'abc_text': return 'teal';
                 case 'abc_url': return 'deep-purple';
                 case 'snarch_url': return 'amber darken-2';
@@ -215,6 +216,7 @@ export default {
         badgeLabel(sourceType) {
             switch (sourceType) {
                 case 'built-in': return 'Built-in';
+                case 'preset': return 'TheSession Irish';
                 case 'abc_text': return 'Pasted ABC';
                 case 'abc_url': return 'ABC URL';
                 case 'snarch_url': return 'Snarch Book';
