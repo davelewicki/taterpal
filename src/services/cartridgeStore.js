@@ -12,6 +12,25 @@ export const DEFAULT_CARTRIDGE = {
     sourceType: 'built-in'
 };
 
+export function sortCartridges(cartridges) {
+    if (!Array.isArray(cartridges)) return [];
+    const defaultCartridge = cartridges.find(c => c.isDefault);
+    const defaultIsOff = defaultCartridge && !defaultCartridge.enabled;
+
+    return [...cartridges].sort((a, b) => {
+        // If default collection is OFF, always force it to the end
+        if (defaultIsOff) {
+            if (a.isDefault) return 1;
+            if (b.isDefault) return -1;
+        }
+
+        // Alphabetical sorting by cartridge name (case-insensitive)
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+    });
+}
+
 class CartridgeStore {
     async getCartridges() {
         let meta = await get(CARTRIDGES_META_KEY);
@@ -19,7 +38,7 @@ class CartridgeStore {
             meta = [DEFAULT_CARTRIDGE];
             await set(CARTRIDGES_META_KEY, meta);
         }
-        return meta;
+        return sortCartridges(meta);
     }
 
     async saveCartridgesMeta(meta) {

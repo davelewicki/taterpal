@@ -383,6 +383,7 @@ export default {
         async toggleCartridge(item) {
             await cartridgeStore.toggleCartridge(item.id, item.enabled);
             await ffBackend.reloadActiveCartridges();
+            await this.loadCartridges();
         },
         confirmDelete(item) {
             this.cartridgeToDelete = item;

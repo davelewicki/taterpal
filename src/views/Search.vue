@@ -184,6 +184,7 @@ export default {
         async toggleCartridge(item) {
             await cartridgeStore.toggleCartridge(item.id, item.enabled);
             await ffBackend.reloadActiveCartridges();
+            await this.loadCartridges();
         },
         nameQuery() {
             if(this.textQuery.length < 2) {
