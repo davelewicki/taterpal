@@ -8,8 +8,20 @@ export const DEFAULT_CARTRIDGE = {
     name: 'Built-in Old Time Collection',
     tuneCount: 6945,
     enabled: true,
+    installed: true,
     isDefault: true,
     sourceType: 'built-in'
+};
+
+export const FOLKFRIEND_PRESET_CARTRIDGE = {
+    id: 'cartridge_original_folkfriend',
+    name: 'Original FolkFriend Irish Collection (thesession.org)',
+    tuneCount: 29000,
+    enabled: false,
+    installed: false,
+    isDefault: false,
+    sourceType: 'preset',
+    sourceUrl: 'https://folkfriend-app-data.web.app/folkfriend-non-user-data.json'
 };
 
 export function sortCartridges(cartridges) {
@@ -35,8 +47,14 @@ class CartridgeStore {
     async getCartridges() {
         let meta = await get(CARTRIDGES_META_KEY);
         if (!meta || !Array.isArray(meta)) {
-            meta = [DEFAULT_CARTRIDGE];
+            meta = [DEFAULT_CARTRIDGE, { ...FOLKFRIEND_PRESET_CARTRIDGE }];
             await set(CARTRIDGES_META_KEY, meta);
+        } else {
+            // Ensure FOLKFRIEND_PRESET_CARTRIDGE slot is present in meta array
+            if (!meta.some(c => c.id === FOLKFRIEND_PRESET_CARTRIDGE.id)) {
+                meta.push({ ...FOLKFRIEND_PRESET_CARTRIDGE });
+                await set(CARTRIDGES_META_KEY, meta);
+            }
         }
         return sortCartridges(meta);
     }
@@ -49,6 +67,10 @@ class CartridgeStore {
         const meta = await this.getCartridges();
         const item = meta.find(c => c.id === id);
         if (item) {
+            if (id === 'cartridge_original_folkfriend' && enabled && !item.installed) {
+                // User turned switch ON for uninstalled preset -> download and install!
+                return await this.installFolkFriendPreset();
+            }
             item.enabled = enabled;
             await this.saveCartridgesMeta(meta);
         }
@@ -57,18 +79,22 @@ class CartridgeStore {
     async deleteCartridge(id) {
         if (id === 'default') return; // Cannot delete built-in database
         let meta = await this.getCartridges();
-        meta = meta.filter(c => c.id !== id);
+        if (id === 'cartridge_original_folkfriend') {
+            // Revert preset slot to uninstalled (OFF) state
+            const item = meta.find(c => c.id === id);
+            if (item) {
+                item.enabled = false;
+                item.installed = false;
+            }
+        } else {
+            meta = meta.filter(c => c.id !== id);
+        }
         await this.saveCartridgesMeta(meta);
         await del(`cartridge_db_${id}`);
     }
 
-    async addPresetFolkFriendCartridge() {
+    async installFolkFriendPreset() {
         const id = 'cartridge_original_folkfriend';
-        const meta = await this.getCartridges();
-        if (meta.some(c => c.id === id)) {
-            throw new Error('Original FolkFriend Irish Collection is already installed.');
-        }
-
         const url = 'https://folkfriend-app-data.web.app/folkfriend-non-user-data.json';
         const response = await fetch(url);
         if (!response.ok) {
@@ -91,20 +117,28 @@ class CartridgeStore {
 
         await set(`cartridge_db_${id}`, cartridgeData);
 
-        const newCartridge = {
-            id,
-            name: 'Original FolkFriend Irish Collection (thesession.org)',
-            tuneCount,
-            enabled: true,
-            isDefault: false,
-            sourceType: 'preset',
-            sourceUrl: url,
-            createdAt: new Date().toISOString()
-        };
-
-        meta.push(newCartridge);
+        const meta = await this.getCartridges();
+        const item = meta.find(c => c.id === id);
+        if (item) {
+            item.tuneCount = tuneCount;
+            item.enabled = true;
+            item.installed = true;
+            item.createdAt = new Date().toISOString();
+        } else {
+            meta.push({
+                id,
+                name: 'Original FolkFriend Irish Collection (thesession.org)',
+                tuneCount,
+                enabled: true,
+                installed: true,
+                isDefault: false,
+                sourceType: 'preset',
+                sourceUrl: url,
+                createdAt: new Date().toISOString()
+            });
+        }
         await this.saveCartridgesMeta(meta);
-        return newCartridge;
+        return item;
     }
 
     async addCartridgeFromAbcText(name, rawAbcText, sourceType = 'abc_text', sourceUrl = '') {

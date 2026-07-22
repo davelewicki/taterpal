@@ -96,7 +96,12 @@
                                         </v-chip>
                                     </div>
                                     <div class="caption text--secondary">
-                                        {{ item.tuneCount.toLocaleString() }} tunes
+                                        <template v-if="item.id === 'cartridge_original_folkfriend' && !item.installed">
+                                            <span class="teal--text text--darken-2 font-weight-medium">~30,000 tunes • Not installed (flip switch to download & activate)</span>
+                                        </template>
+                                        <template v-else>
+                                            {{ item.tuneCount.toLocaleString() }} tunes
+                                        </template>
                                     </div>
                                 </div>
                             </div>

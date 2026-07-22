@@ -71,16 +71,21 @@
                                 </v-chip>
                             </div>
                             <div class="caption text--secondary">
-                                {{ item.tuneCount.toLocaleString() }} tunes
-                                <span v-if="item.createdAt"> • Added {{ formatDate(item.createdAt) }}</span>
+                                <template v-if="item.id === 'cartridge_original_folkfriend' && !item.installed">
+                                    <span class="teal--text text--darken-2 font-weight-medium">~30,000 tunes • Not installed (flip switch to download & activate)</span>
+                                </template>
+                                <template v-else>
+                                    {{ item.tuneCount.toLocaleString() }} tunes
+                                    <span v-if="item.createdAt"> • Added {{ formatDate(item.createdAt) }}</span>
+                                </template>
                             </div>
                         </div>
                         <v-btn 
-                            v-if="!item.isDefault" 
+                            v-if="!item.isDefault && (item.installed !== false)" 
                             icon 
                             color="error" 
                             @click="confirmDelete(item)"
-                            title="Delete Cartridge"
+                            :title="item.id === 'cartridge_original_folkfriend' ? 'Uninstall Irish Collection' : 'Delete Cartridge'"
                         >
                             <v-icon>{{ icons.delete }}</v-icon>
                         </v-btn>
@@ -95,31 +100,6 @@
                 <v-icon class="mr-1 pb-1" color="primary">{{ icons.plus }}</v-icon>
                 Add New Cartridge
             </h2>
-
-            <!-- Available Preset Banner (shown when Original FolkFriend is NOT installed) -->
-            <v-card v-if="!hasFolkFriendPreset" outlined class="mb-4 pa-3 green lighten-5" style="border: 1px solid #80CBC4;">
-                <div class="d-flex align-center flex-wrap">
-                    <v-icon left color="teal darken-2" class="mr-2">{{ icons.musicBox }}</v-icon>
-                    <div class="flex-grow-1 my-1">
-                        <div class="subtitle-2 font-weight-bold teal--text text--darken-4">
-                            Original FolkFriend Irish Collection (thesession.org)
-                        </div>
-                        <div class="caption text--secondary">
-                            Install the original ~30,000 Irish traditional tune database as an additional search cartridge.
-                        </div>
-                    </div>
-                    <v-btn
-                        color="teal darken-2"
-                        dark
-                        small
-                        :loading="loading"
-                        @click="installFolkFriendPreset"
-                        class="my-1"
-                    >
-                        <v-icon left small>{{ icons.plus }}</v-icon> Install Irish Collection
-                    </v-btn>
-                </div>
-            </v-card>
 
             <v-tabs v-model="importTab" color="primary" class="mb-3">
                 <v-tab key="text">
