@@ -61,6 +61,48 @@
         >
             {{ snackbarText }}
         </v-snackbar>
+
+        <!-- Cartridges Section (shown if any custom cartridge is installed) -->
+        <v-container v-if="hasCustomCartridges" class="mt-4 px-5 pb-8">
+            <v-row justify="center">
+                <v-col sm="8" md="8" lg="6">
+                    <v-card class="pa-4" outlined>
+                        <div class="subtitle-2 font-weight-bold grey--text text--darken-2 mb-2 d-flex align-center">
+                            <v-icon left small color="primary">{{ icons.bookMultiple }}</v-icon>
+                            Active Search Cartridges
+                        </div>
+                        <v-card 
+                            v-for="item in cartridges" 
+                            :key="item.id" 
+                            outlined 
+                            class="mb-2 pa-2"
+                            :style="item.enabled ? 'border-left: 4px solid #055581;' : 'border-left: 4px solid #B0BEC5; opacity: 0.7;'"
+                        >
+                            <div class="d-flex align-center">
+                                <v-switch
+                                    v-model="item.enabled"
+                                    inset
+                                    hide-details
+                                    class="ma-0 pa-0 ml-2"
+                                    @change="toggleCartridge(item)"
+                                />
+                                <div class="ml-3 flex-grow-1">
+                                    <div class="subtitle-2 font-weight-bold">
+                                        {{ item.name }}
+                                        <v-chip x-small class="ml-2" :color="badgeColor(item.sourceType)" dark>
+                                            {{ badgeLabel(item.sourceType) }}
+                                        </v-chip>
+                                    </div>
+                                    <div class="caption text--secondary">
+                                        {{ item.tuneCount.toLocaleString() }} tunes
+                                    </div>
+                                </div>
+                            </div>
+                        </v-card>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </v-container>
     </div>
 </template>
 
@@ -69,8 +111,9 @@ import RecorderButton from '@/components/RecorderButton';
 import ffBackend from '@/services/backend';
 import audioService from '@/services/audio';
 import store from '@/services/store';
+import { cartridgeStore } from '@/services/cartridgeStore';
 import eventBus from '@/eventBus';
-import { mdiMagnify, mdiTimerOutline, mdiTimerOffOutline } from '@mdi/js';
+import { mdiBookMultiple, mdiMagnify, mdiTimerOutline, mdiTimerOffOutline } from '@mdi/js';
 
 export default {
     name: 'SearchView',
@@ -85,13 +128,20 @@ export default {
             textQuery: '',
             offlineButton: true,
             indexLoaded: store.state.indexLoaded,
+            cartridges: [],
 
             icons: {
+                bookMultiple: mdiBookMultiple,
                 magnify: mdiMagnify,
                 timerOutline: mdiTimerOutline,
                 timerOffOutline: mdiTimerOffOutline,
             },
         };
+    },
+    computed: {
+        hasCustomCartridges() {
+            return this.cartridges.some(c => !c.isDefault);
+        }
     },
     created: function () {
         eventBus.$emit('parentViewActivated');
@@ -106,8 +156,35 @@ export default {
             this.snackbar = true;
             this.snackbarText = errorMsg || 'An error ocurred 😟';
         });
+
+        this.loadCartridges();
     },
     methods: {
+        async loadCartridges() {
+            this.cartridges = await cartridgeStore.getCartridges();
+        },
+        badgeColor(sourceType) {
+            switch (sourceType) {
+                case 'built-in': return 'primary';
+                case 'abc_text': return 'teal';
+                case 'abc_url': return 'deep-purple';
+                case 'snarch_url': return 'amber darken-2';
+                default: return 'grey';
+            }
+        },
+        badgeLabel(sourceType) {
+            switch (sourceType) {
+                case 'built-in': return 'Built-in';
+                case 'abc_text': return 'Pasted ABC';
+                case 'abc_url': return 'ABC URL';
+                case 'snarch_url': return 'Snarch Book';
+                default: return 'Custom';
+            }
+        },
+        async toggleCartridge(item) {
+            await cartridgeStore.toggleCartridge(item.id, item.enabled);
+            await ffBackend.reloadActiveCartridges();
+        },
         nameQuery() {
             if(this.textQuery.length < 2) {
                 this.snackbar = true;
