@@ -39,9 +39,10 @@
                         </template>
                     </v-text-field>
                     <p class="text-center caption grey--text text--darken-1">
-                        <u>Playing clear individual notes will improve the search!</u>
+                        <u>Playing clear individual notes will improve the search! **</u>
                         <br>This is an Old Time fork of <a href="https://folkfriend.app" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">folkfriend.app</a> that originally audio-searched <a href="https://thesession.org" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">thesession.org</a> for Irish tunes.
-                        <br><i><b>If Old Time isn't your thing, </b>go to settings and paste an abc file of music that you *do* want to search instead.</i>
+                        <br><i><b>If Old Time isn't your thing, </b>go to <router-link to="/settings" class="grey--text text--darken-1 font-weight-bold" style="text-decoration: underline;">settings</router-link> and paste an abc file of music that you *do* want to search instead.</i>  2-3k tunes? No problem.
+                        <br> ** (yeah, looking at you, ot players)
                     </p>
                 </v-col>
             </v-row>
