@@ -38,37 +38,9 @@
                             </v-icon>
                         </template>
                     </v-text-field>
-                    <p class="text-center caption grey--text text--darken-1">
-                        <u>Playing clear individual notes will improve the search! **</u>
-                        <br>This is an Old Time fork of <a href="https://folkfriend.app" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">folkfriend.app</a> that originally audio-searched <a href="https://thesession.org" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">thesession.org</a> for Irish tunes.
-                        <br><i><b>If Old Time isn't your thing, </b>go to <router-link to="/settings" class="grey--text text--darken-1 font-weight-bold" style="text-decoration: underline;">settings</router-link> and paste an abc file of music that you *do* want to search instead.</i>  2-3k tunes? No problem.
-                        <br> ** (yeah, looking at you, ot players)
-                    </p>
-                </v-col>
-            </v-row>
-        </v-container>
 
-        <v-container class="tuneProgress">
-            <v-progress-linear
-                :class="{ Transparent: indexLoaded }"
-                indeterminate
-                rounded
-            />
-        </v-container>
-
-        <v-snackbar
-            v-model="snackbar"
-            class="text-center"
-            :timeout="3000"
-        >
-            {{ snackbarText }}
-        </v-snackbar>
-
-        <!-- Cartridges Section (shown if any custom cartridge is installed) -->
-        <v-container v-if="hasCustomCartridges" class="mt-4 px-5 pb-8">
-            <v-row justify="center">
-                <v-col sm="8" md="8" lg="6">
-                    <v-card class="pa-4" outlined>
+                    <!-- Cartridges Section (shown if any custom cartridge is installed) -->
+                    <v-card v-if="hasCustomCartridges" class="pa-4 my-4" outlined>
                         <div class="subtitle-2 font-weight-bold grey--text text--darken-2 mb-2 d-flex align-center">
                             <v-icon left small color="primary">{{ icons.bookMultiple }}</v-icon>
                             Active Search Cartridges
@@ -107,9 +79,33 @@
                             </div>
                         </v-card>
                     </v-card>
+
+                    <p class="text-center caption grey--text text--darken-1">
+                        <u>Playing clear individual notes will improve the search! **</u>
+                        <br>This is an Old Time fork of <a href="https://folkfriend.app" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">folkfriend.app</a> that originally audio-searched <a href="https://thesession.org" target="_blank" class="grey--text text--darken-1" style="text-decoration: underline;">thesession.org</a> for Irish tunes.
+                        <br><i><b>If Old Time isn't your thing, </b>go to <router-link to="/settings" class="grey--text text--darken-1 font-weight-bold" style="text-decoration: underline;">settings</router-link> and paste an abc file of music that you *do* want to search instead.</i>  2-3k tunes? No problem.
+                        <br> <br>** (yeah, looking at you, ot players)
+                    </p>
                 </v-col>
             </v-row>
         </v-container>
+
+        <v-container class="tuneProgress">
+            <v-progress-linear
+                :class="{ Transparent: indexLoaded }"
+                indeterminate
+                rounded
+            />
+        </v-container>
+
+        <v-snackbar
+            v-model="snackbar"
+            class="text-center"
+            :timeout="3000"
+        >
+            {{ snackbarText }}
+        </v-snackbar>
+
         <!-- Random Snarch Logo Link (Easter Egg on Search Page) -->
         <a
             v-if="randomSpotStyle"
