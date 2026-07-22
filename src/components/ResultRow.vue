@@ -31,8 +31,11 @@
                 <!-- Right: Title, Descriptor, Score -->
                 <div class="flex-grow-1">
                     <v-row class="pt-1 pb-0">
-                        <v-col class="py-0">
-                            <h2 class="mb-0 text-left">{{ name }}</h2>
+                        <v-col class="py-0 d-flex align-center flex-wrap">
+                            <h2 class="mb-0 text-left mr-2">{{ name }}</h2>
+                            <v-chip v-if="setting.cartridgeName && setting.cartridgeName !== 'Built-in Old Time Collection'" x-small color="primary" outlined class="my-1">
+                                {{ setting.cartridgeName }}
+                            </v-chip>
                         </v-col>
                     </v-row>
                     <v-row class="pb-1 pt-0">

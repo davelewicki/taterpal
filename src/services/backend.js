@@ -41,6 +41,14 @@ class FFBackend {
         store.logAnalyticsEvent('tune_index_init', analyticsData).then();
     }
 
+    async reloadActiveCartridges() {
+        return new Promise(resolve => {
+            this.folkfriendWorker.reloadActiveCartridges(Comlink.proxy(res => {
+                resolve(res);
+            }));
+        });
+    }
+
     async setSampleRate(sampleRate) {
         // Same check as in folkfriend::feature::signal::validate_sample_rate
         let isValid = sampleRate < ffConfig.SAMPLE_RATE_MAX && sampleRate > ffConfig.SAMPLE_RATE_MIN;

@@ -35,7 +35,164 @@
                     @change="settingsChanged"
                 />
             </v-row>
+        <v-card class="pa-5 my-3">
+            <h1 class="pb-2">
+                <v-icon class="mr-2 pb-1" color="primary">{{ icons.bookMultiple }}</v-icon>
+                Search Index Cartridges
+            </h1>
+            <p class="subtitle-2 text--secondary mb-4">
+                Manage which book indices are active for audio search matching. You can import custom ABC files, external ABC URLs, or Snarch books as local cartridges.
+            </p>
+
+            <!-- Cartridges List -->
+            <v-list two-line subheader class="mb-4">
+                <v-subheader class="px-0 font-weight-bold">INSTALLED CARTRIDGES ({{ cartridges.length }})</v-subheader>
+                <v-card 
+                    v-for="item in cartridges" 
+                    :key="item.id" 
+                    outlined 
+                    class="mb-2 pa-2"
+                    :style="item.enabled ? 'border-left: 4px solid #055581;' : 'border-left: 4px solid #B0BEC5; opacity: 0.7;'"
+                >
+                    <div class="d-flex align-center">
+                        <v-switch
+                            v-model="item.enabled"
+                            inset
+                            hide-details
+                            class="ma-0 pa-0 ml-2"
+                            @change="toggleCartridge(item)"
+                        />
+                        <div class="ml-3 flex-grow-1">
+                            <div class="subtitle-1 font-weight-bold">
+                                {{ item.name }}
+                                <v-chip x-small class="ml-2" :color="badgeColor(item.sourceType)" dark>
+                                    {{ badgeLabel(item.sourceType) }}
+                                </v-chip>
+                            </div>
+                            <div class="caption text--secondary">
+                                {{ item.tuneCount.toLocaleString() }} tunes
+                                <span v-if="item.createdAt"> • Added {{ formatDate(item.createdAt) }}</span>
+                            </div>
+                        </div>
+                        <v-btn 
+                            v-if="!item.isDefault" 
+                            icon 
+                            color="error" 
+                            @click="confirmDelete(item)"
+                            title="Delete Cartridge"
+                        >
+                            <v-icon>{{ icons.delete }}</v-icon>
+                        </v-btn>
+                    </div>
+                </v-card>
+            </v-list>
+
+            <v-divider class="my-4" />
+
+            <!-- Import New Cartridge Section -->
+            <h2 class="subtitle-1 font-weight-bold mb-2">
+                <v-icon class="mr-1 pb-1" color="primary">{{ icons.plus }}</v-icon>
+                Add New Cartridge
+            </h2>
+
+            <v-tabs v-model="importTab" color="primary" class="mb-3">
+                <v-tab key="text">
+                    <v-icon left small>{{ icons.fileEdit }}</v-icon> Paste ABC
+                </v-tab>
+                <v-tab key="url">
+                    <v-icon left small>{{ icons.link }}</v-icon> ABC URL
+                </v-tab>
+                <v-tab key="snarch">
+                    <v-icon left small>{{ icons.cloudDownload }}</v-icon> Snarch Book
+                </v-tab>
+            </v-tabs>
+
+            <v-tabs-items v-model="importTab">
+                <!-- Tab 1: Paste ABC Text -->
+                <v-tab-item key="text" class="pt-2">
+                    <v-text-field
+                        v-model="abcForm.name"
+                        label="Book Name"
+                        placeholder="e.g. Roche Harbor Jam Session"
+                        outlined
+                        dense
+                    />
+                    <v-textarea
+                        v-model="abcForm.text"
+                        label="ABC Notation Text"
+                        placeholder="Paste raw ABC tunes here (X:1, T:Tune Title, K:G...)"
+                        rows="5"
+                        outlined
+                        dense
+                    />
+                    <v-btn
+                        color="primary"
+                        :loading="loading"
+                        :disabled="!abcForm.text.trim()"
+                        @click="importAbcText"
+                    >
+                        <v-icon left>{{ icons.plus }}</v-icon> Compile & Install Cartridge
+                    </v-btn>
+                </v-tab-item>
+
+                <!-- Tab 2: ABC URL -->
+                <v-tab-item key="url" class="pt-2">
+                    <v-text-field
+                        v-model="urlForm.name"
+                        label="Book Name (Optional)"
+                        placeholder="e.g. Old Time Archive"
+                        outlined
+                        dense
+                    />
+                    <v-text-field
+                        v-model="urlForm.url"
+                        label="ABC File URL"
+                        placeholder="https://example.com/tunes.abc"
+                        outlined
+                        dense
+                    />
+                    <v-btn
+                        color="primary"
+                        :loading="loading"
+                        :disabled="!urlForm.url.trim()"
+                        @click="importAbcUrl"
+                    >
+                        <v-icon left>{{ icons.cloudDownload }}</v-icon> Fetch & Install Cartridge
+                    </v-btn>
+                </v-tab-item>
+
+                <!-- Tab 3: Snarch Book URL -->
+                <v-tab-item key="snarch" class="pt-2">
+                    <v-text-field
+                        v-model="snarchForm.url"
+                        label="Snarch Book URL or ID"
+                        placeholder="https://snarch.app/book/RocheHarbor2020 or book ID"
+                        outlined
+                        dense
+                    />
+                    <v-btn
+                        color="primary"
+                        :loading="loading"
+                        :disabled="!snarchForm.url.trim()"
+                        @click="importSnarchBook"
+                    >
+                        <v-icon left>{{ icons.cloudDownload }}</v-icon> Fetch & Install Snarch Book
+                    </v-btn>
+                </v-tab-item>
+            </v-tabs-items>
+
+            <!-- Status Alert Messages -->
+            <v-alert
+                v-if="statusMessage"
+                :type="statusType"
+                dismissible
+                class="mt-4 mb-0"
+                @dismissed="statusMessage = ''"
+            >
+                {{ statusMessage }}
+            </v-alert>
         </v-card>
+
         <v-card
             class="pa-5 my-2"
         >
@@ -98,31 +255,47 @@
                 and select "Add to Home Screen" or "Install App".
             </p>
         </v-card>
+
+        <!-- Delete Confirmation Dialog -->
+        <v-dialog v-model="deleteDialog" max-width="400">
+            <v-card v-if="cartridgeToDelete">
+                <v-card-title class="headline">Delete Cartridge?</v-card-title>
+                <v-card-text>
+                    Are you sure you want to remove <strong>{{ cartridgeToDelete.name }}</strong>? This will remove its tunes from your search index.
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn text @click="deleteDialog = false">Cancel</v-btn>
+                    <v-btn color="error" text @click="deleteCartridge">Delete</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 
 <script>
 import store from '@/services/store.js';
+import ffBackend from '@/services/backend.js';
+import { cartridgeStore } from '@/services/cartridgeStore.js';
 import eventBus from '@/eventBus';
 import utils from '@/js/utils.js';
 import {
-    // mdiCellphoneArrowDownVariant,
+    mdiBookMultiple,
     mdiCellphoneArrowDown,
     mdiCheckCircleOutline,
+    mdiCloudDownload,
+    mdiDelete,
     mdiDotsVertical,
     mdiExportVariant,
-    // mdiMonitorArrowDownVariant,
+    mdiFileDocumentEditOutline,
+    mdiLinkVariant,
+    mdiPlus,
     mdiPlusBoxOutline,
 } from '@mdi/js';
 
 export default {
     name: 'SettingsView',
     beforeRouteEnter(_, from, next) {
-        // This becomes a parent view, unless it's come from the search,
-        //  in which case the hamburger state isn't changed. This enables
-        //  it to stay as a parent view if the settings were opened through
-        //  the navigation drawer, or to become a child view if the top-right
-        //  settings shortcut was clicked from the search page.
         if(from.name !== 'search') {
             eventBus.$emit('parentViewActivated');
         }        
@@ -130,12 +303,15 @@ export default {
     },
     data: () => ({
         icons: {
+            bookMultiple: mdiBookMultiple,
+            cloudDownload: mdiCloudDownload,
+            delete: mdiDelete,
+            fileEdit: mdiFileDocumentEditOutline,
+            link: mdiLinkVariant,
+            plus: mdiPlus,
             iosShare: mdiExportVariant,
             iosAddToHomeScreen: mdiPlusBoxOutline,
             checkCircle: mdiCheckCircleOutline,
-            // TODO waiting on these icons being pushed to the npm version
-            // installDesktop: mdiMonitorArrowDownVariant,
-            // installMobile: mdiCellphoneArrowDownVariant,
             installDesktop: mdiCellphoneArrowDown,
             installMobile: mdiCellphoneArrowDown,
             dotsVertical: mdiDotsVertical,
@@ -143,17 +319,149 @@ export default {
         settingsLoaded: false,
         userSettings: store.userSettings,
         isPWA: utils.checkStandalone(),
+
+        // Cartridge management state
+        cartridges: [],
+        importTab: 0,
+        loading: false,
+        statusMessage: '',
+        statusType: 'success',
+
+        abcForm: {
+            name: '',
+            text: ''
+        },
+        urlForm: {
+            name: '',
+            url: ''
+        },
+        snarchForm: {
+            url: ''
+        },
+
+        deleteDialog: false,
+        cartridgeToDelete: null
     }),
     created: function() {
         this.ua = utils.checkUserAgent();
+        this.loadCartridges();
     },
     methods: {
         settingsChanged() {
             store.updateUserSettings(this.userSettings);
         },
+        async loadCartridges() {
+            this.cartridges = await cartridgeStore.getCartridges();
+        },
+        badgeColor(sourceType) {
+            switch (sourceType) {
+                case 'built-in': return 'primary';
+                case 'abc_text': return 'teal';
+                case 'abc_url': return 'deep-purple';
+                case 'snarch_url': return 'amber darken-2';
+                default: return 'grey';
+            }
+        },
+        badgeLabel(sourceType) {
+            switch (sourceType) {
+                case 'built-in': return 'Built-in';
+                case 'abc_text': return 'Pasted ABC';
+                case 'abc_url': return 'ABC URL';
+                case 'snarch_url': return 'Snarch Book';
+                default: return 'Custom';
+            }
+        },
+        formatDate(isoStr) {
+            if (!isoStr) return '';
+            try {
+                return new Date(isoStr).toLocaleDateString();
+            } catch (e) {
+                return '';
+            }
+        },
+        async toggleCartridge(item) {
+            await cartridgeStore.toggleCartridge(item.id, item.enabled);
+            await ffBackend.reloadActiveCartridges();
+        },
+        confirmDelete(item) {
+            this.cartridgeToDelete = item;
+            this.deleteDialog = true;
+        },
+        async deleteCartridge() {
+            if (!this.cartridgeToDelete) return;
+            const deletedName = this.cartridgeToDelete.name;
+            await cartridgeStore.deleteCartridge(this.cartridgeToDelete.id);
+            this.deleteDialog = false;
+            this.cartridgeToDelete = null;
+            await this.loadCartridges();
+            await ffBackend.reloadActiveCartridges();
+            this.showStatus(`Deleted cartridge "${deletedName}".`, 'success');
+        },
+        showStatus(msg, type = 'success') {
+            this.statusMessage = msg;
+            this.statusType = type;
+        },
+        async importAbcText() {
+            this.loading = true;
+            this.statusMessage = '';
+            try {
+                const cartridge = await cartridgeStore.addCartridgeFromAbcText(
+                    this.abcForm.name,
+                    this.abcForm.text
+                );
+                await this.loadCartridges();
+                await ffBackend.reloadActiveCartridges();
+                this.showStatus(`Successfully compiled & installed "${cartridge.name}" with ${cartridge.tuneCount} tunes!`, 'success');
+                this.abcForm.name = '';
+                this.abcForm.text = '';
+            } catch (e) {
+                this.showStatus(e.message || 'Failed to parse ABC notation.', 'error');
+            } finally {
+                this.loading = false;
+            }
+        },
+        async importAbcUrl() {
+            this.loading = true;
+            this.statusMessage = '';
+            try {
+                const cartridge = await cartridgeStore.addCartridgeFromAbcUrl(
+                    this.urlForm.url,
+                    this.urlForm.name
+                );
+                await this.loadCartridges();
+                await ffBackend.reloadActiveCartridges();
+                this.showStatus(`Successfully fetched & installed "${cartridge.name}" with ${cartridge.tuneCount} tunes!`, 'success');
+                this.urlForm.name = '';
+                this.urlForm.url = '';
+            } catch (e) {
+                this.showStatus(e.message || 'Failed to download or parse ABC file from URL.', 'error');
+            } finally {
+                this.loading = false;
+            }
+        },
+        async importSnarchBook() {
+            this.loading = true;
+            this.statusMessage = '';
+            try {
+                const cartridge = await cartridgeStore.addCartridgeFromSnarchUrl(
+                    this.snarchForm.url
+                );
+                await this.loadCartridges();
+                await ffBackend.reloadActiveCartridges();
+                this.showStatus(`Successfully fetched & installed Snarch book "${cartridge.name}" with ${cartridge.tuneCount} tunes!`, 'success');
+                this.snarchForm.url = '';
+            } catch (e) {
+                this.showStatus(e.message || 'Failed to fetch Snarch book.', 'error');
+            } finally {
+                this.loading = false;
+            }
+        }
     },
 };
 </script>
+
+<style scoped>
+</style>
 
 <style scoped>
 </style>

@@ -4,10 +4,13 @@ import {get,
     set
 } from 'idb-keyval';
 
+import { cartridgeStore } from '@/services/cartridgeStore';
+
 class FolkFriendWASMWrapper {
     constructor() {
         this.folkfriendWASM = null;
         this.abcStringBySetting = {};
+        this.defaultTuneIndex = null;
 
         this.loadedWASM = new Promise(resolve => {
             this.setLoadedWASM = resolve;
@@ -71,92 +74,63 @@ class FolkFriendWASMWrapper {
             indexData: indexData,
             abcStrings: abcStringBySetting
         };
-
         console.timeEnd('index-fetch');
 
         return downloadedTuneIndex;
     }
 
     async setupTuneIndex(cb) {
-        // This is the entry point, run every application start, for
-        //  loading in the tune index ASAP and also maintaining an up-to-date
-        //  offline copy.
         let t0 = performance.now();
         let analyticsData = {
             'newly_installed': false,
             'newly_updated': false
         };
         console.time('tune-index-setup');
-        console.time('tune-index-load');
 
-        // This will be null if no tune index has been stored.
-        // During development (on localhost), we bypass the cache to always load the latest database changes.
         const isLocalhost = typeof self !== 'undefined' && self.location && (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1');
-        const localTuneIndex = isLocalhost ? undefined : await get('tuneIndex');
+        let localTuneIndex = isLocalhost ? undefined : await get('tuneIndex');
 
         if (typeof localTuneIndex === 'undefined') {
             console.debug('No tune index was cached or running on localhost, requesting download');
-
             const downloadedTuneIndex = await this.fetchTuneIndexData();
-
-            // Load (so the user can start using the application)
-            await this.loadTuneIndex(downloadedTuneIndex);
-            console.timeEnd('tune-index-load');
-
-            // Store the version of this newly downloaded tune index
+            this.defaultTuneIndex = downloadedTuneIndex;
             const tuneIndexMetadata = await this.fetchTuneIndexMetadata();
             await set('tuneIndex', downloadedTuneIndex);
             await set('tuneIndexMetadata', tuneIndexMetadata);
-
-            analyticsData['days_since_update'] = 0;
-            analyticsData['tune_index_metadata_version'] = tuneIndexMetadata['v'];
-            analyticsData['newly_installed'] = true;
         } else {
             console.debug('Found cached tune index');
+            this.defaultTuneIndex = localTuneIndex;
 
-            // Load cached copy
-            await this.loadTuneIndex(localTuneIndex);
-            console.timeEnd('tune-index-load');
-
-            // THEN check the latest version and if we want to upgrade
             const tuneIndexMetadataRemote = await this.fetchTuneIndexMetadata();
             let tuneIndexMetadataLocal = await get('tuneIndexMetadata');
-
             if (typeof tuneIndexMetadataLocal === 'undefined') {
-                // This is a near-impossible state, only reached by people 
-                //  selectively deleting from IndexedDB. As browsers do delete
-                //   from IndexedDB when under storage pressure it's best to
-                //   cover this case and be safe.
-                tuneIndexMetadataLocal = {
-                    'v': 0
-                };
+                tuneIndexMetadataLocal = { 'v': 0 };
             }
 
             const remoteVersion = tuneIndexMetadataRemote['v'];
             const localVersion = tuneIndexMetadataLocal['v'];
-            console.debug(`Local database version: ${localVersion}, Remote database version: ${remoteVersion}`);
-
             if (remoteVersion !== localVersion) {
                 console.debug('Upgrading tune index to version', remoteVersion);
                 const downloadedTuneIndex = await this.fetchTuneIndexData();
-                await this.loadTuneIndex(downloadedTuneIndex);
+                this.defaultTuneIndex = downloadedTuneIndex;
                 await set('tuneIndex', downloadedTuneIndex);
                 await set('tuneIndexMetadata', tuneIndexMetadataRemote);
-                analyticsData['days_since_update'] = 0;
-                analyticsData['tune_index_metadata_version'] = remoteVersion;
-                analyticsData['newly_updated'] = true;
-            } else {
-                analyticsData['days_since_update'] = 0;
-                analyticsData['tune_index_metadata_version'] = localVersion;
             }
         }
 
+        await this.reloadActiveCartridges();
         console.timeEnd('tune-index-setup');
-
         let tEnd = performance.now();
         analyticsData['wall_time'] = tEnd - t0;
+        if (cb) cb(analyticsData);
+    }
 
-        cb(analyticsData);
+    async reloadActiveCartridges(cb) {
+        console.time('reload-active-cartridges');
+        const mergedData = await cartridgeStore.getMergedCartridgesData(this.defaultTuneIndex);
+        await this.loadTuneIndex(mergedData);
+        console.timeEnd('reload-active-cartridges');
+        if (cb) cb(true);
     }
 
     async loadTuneIndex(tuneIndex) {
