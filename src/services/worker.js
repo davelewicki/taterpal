@@ -136,7 +136,8 @@ class FolkFriendWASMWrapper {
     async loadTuneIndex(tuneIndex) {
         console.time('tune-index-to-wasm');
         await this.loadedWASM;
-        await this.folkfriendWASM.load_index_from_json_obj(tuneIndex.indexData);
+        const cleanIndexData = JSON.parse(JSON.stringify(tuneIndex.indexData));
+        await this.folkfriendWASM.load_index_from_json_obj(cleanIndexData);
         this.abcStringBySetting = tuneIndex.abcStrings;
         this.setLoadedIndex();
         console.timeEnd('tune-index-to-wasm');
