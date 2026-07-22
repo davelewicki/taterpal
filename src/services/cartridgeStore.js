@@ -238,26 +238,22 @@ class CartridgeStore {
                 const defaultAbc = defaultTuneIndexData.abcStrings;
 
                 for (const settingId in defaultSettings) {
-                    const sIdNum = parseInt(settingId, 10);
                     const settingObj = defaultSettings[settingId];
-                    const tIdNum = parseInt(settingObj.tune_id || settingId, 10);
+                    const sIdStr = String(settingId);
+                    const tIdStr = String(settingObj.tune_id || settingId);
 
-                    const finalSettingId = isNaN(sIdNum) ? settingId : sIdNum;
-                    const finalTuneId = isNaN(tIdNum) ? (settingObj.tune_id || settingId) : tIdNum;
-
-                    mergedSettings[finalSettingId] = {
+                    mergedSettings[sIdStr] = {
                         ...settingObj,
-                        tune_id: finalTuneId,
+                        tune_id: tIdStr,
                         cartridgeName: cartridge.name,
                         cartridgeId: 'default'
                     };
-                    mergedAbcStrings[finalSettingId] = defaultAbc[settingId] || '';
+                    mergedAbcStrings[sIdStr] = defaultAbc[settingId] || '';
                 }
 
                 for (const tuneId in defaultAliases) {
-                    const tIdNum = parseInt(tuneId, 10);
-                    const finalTuneId = isNaN(tIdNum) ? tuneId : tIdNum;
-                    mergedAliases[finalTuneId] = defaultAliases[tuneId];
+                    const tIdStr = String(tuneId);
+                    mergedAliases[tIdStr] = defaultAliases[tuneId];
                 }
             } else {
                 const cartridgeData = await get(`cartridge_db_${cartridge.id}`);
@@ -276,27 +272,30 @@ class CartridgeStore {
 
                     const parsedOrigTuneId = parseInt(origTuneId, 10);
                     if (!tuneIdMap[origTuneId]) {
-                        tuneIdMap[origTuneId] = !isNaN(parsedOrigTuneId) ? (cartridgeBaseOffset + parsedOrigTuneId) : (cartridgeBaseOffset + settingCounter);
+                        const numId = !isNaN(parsedOrigTuneId) ? (cartridgeBaseOffset + parsedOrigTuneId) : (cartridgeBaseOffset + settingCounter);
+                        tuneIdMap[origTuneId] = String(numId);
                     }
 
                     const parsedOrigSettingId = parseInt(origSettingId, 10);
-                    const numericSettingId = !isNaN(parsedOrigSettingId) ? (cartridgeBaseOffset + parsedOrigSettingId) : (cartridgeBaseOffset + settingCounter);
-                    const numericTuneId = tuneIdMap[origTuneId];
+                    const numSettingId = !isNaN(parsedOrigSettingId) ? (cartridgeBaseOffset + parsedOrigSettingId) : (cartridgeBaseOffset + settingCounter);
+                    const stringSettingId = String(numSettingId);
+                    const stringTuneId = tuneIdMap[origTuneId];
                     settingCounter++;
 
-                    mergedSettings[numericSettingId] = {
+                    mergedSettings[stringSettingId] = {
                         ...settingObj,
-                        tune_id: numericTuneId,
+                        tune_id: stringTuneId,
                         cartridgeName: cartridge.name,
                         cartridgeId: cartridge.id
                     };
-                    mergedAbcStrings[numericSettingId] = cAbc[origSettingId] || '';
+                    mergedAbcStrings[stringSettingId] = cAbc[origSettingId] || '';
                 }
 
                 for (const origTuneId in cAliases) {
                     const parsedOrigTuneId = parseInt(origTuneId, 10);
-                    const numericTuneId = tuneIdMap[origTuneId] || (!isNaN(parsedOrigTuneId) ? (cartridgeBaseOffset + parsedOrigTuneId) : (cartridgeBaseOffset + settingCounter++));
-                    mergedAliases[numericTuneId] = cAliases[origTuneId];
+                    const numTuneId = !isNaN(parsedOrigTuneId) ? (cartridgeBaseOffset + parsedOrigTuneId) : (cartridgeBaseOffset + settingCounter++);
+                    const stringTuneId = tuneIdMap[origTuneId] || String(numTuneId);
+                    mergedAliases[stringTuneId] = cAliases[origTuneId];
                 }
 
                 cartridgeBaseOffset += 1000000;
