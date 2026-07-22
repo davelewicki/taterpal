@@ -39,15 +39,15 @@
         <v-card class="pa-5 my-3">
             <h1 class="pb-2">
                 <v-icon class="mr-2 pb-1" color="primary">{{ icons.bookMultiple }}</v-icon>
-                Search Index Cartridges
+                Search Index ABC-File Cartridges
             </h1>
             <p class="subtitle-2 text--secondary mb-4">
-                Manage which book indices are active for audio search matching. You can import custom ABC files, external ABC URLs, or Snarch books as local cartridges.
+                Manage which book indices are active for audio search matching. You can import custom ABC files, external ABC URLs, or Snarch books as local abc-file cartridges.
             </p>
 
             <!-- Cartridges List -->
             <v-list two-line subheader class="mb-4">
-                <v-subheader class="px-0 font-weight-bold">CARTRIDGES ({{ installedCount }} INSTALLED)</v-subheader>
+                <v-subheader class="px-0 font-weight-bold">ABC-FILE CARTRIDGES ({{ installedCount }} INSTALLED)</v-subheader>
                 <v-card 
                     v-for="item in cartridges" 
                     :key="item.id" 
@@ -85,7 +85,7 @@
                             icon 
                             color="error" 
                             @click="confirmDelete(item)"
-                            :title="item.id === 'cartridge_original_folkfriend' ? 'Uninstall Irish Collection' : 'Delete Cartridge'"
+                            :title="item.id === 'cartridge_original_folkfriend' ? 'Uninstall Irish Collection' : 'Delete ABC-File Cartridge'"
                         >
                             <v-icon>{{ icons.delete }}</v-icon>
                         </v-btn>
@@ -98,7 +98,7 @@
             <!-- Import New Cartridge Section -->
             <h2 class="subtitle-1 font-weight-bold mb-2">
                 <v-icon class="mr-1 pb-1" color="primary">{{ icons.plus }}</v-icon>
-                Add New Cartridge
+                Add New ABC-File Cartridge
             </h2>
 
             <v-tabs v-model="importTab" color="primary" class="mb-3">
@@ -147,7 +147,7 @@
                         :disabled="!abcForm.text.trim()"
                         @click="importAbcText"
                     >
-                        <v-icon left>{{ icons.plus }}</v-icon> Compile & Install Cartridge
+                        <v-icon left>{{ icons.plus }}</v-icon> Compile & Install ABC-File Cartridge
                     </v-btn>
                 </v-tab-item>
 
@@ -173,7 +173,7 @@
                         :disabled="!urlForm.url.trim()"
                         @click="importAbcUrl"
                     >
-                        <v-icon left>{{ icons.cloudDownload }}</v-icon> Fetch & Install Cartridge
+                        <v-icon left>{{ icons.cloudDownload }}</v-icon> Fetch & Install ABC-File Cartridge
                     </v-btn>
                 </v-tab-item>
 
@@ -290,7 +290,7 @@
         <!-- Delete Confirmation Dialog -->
         <v-dialog v-model="deleteDialog" max-width="400">
             <v-card v-if="cartridgeToDelete">
-                <v-card-title class="headline">Delete Cartridge?</v-card-title>
+                <v-card-title class="headline">Delete ABC-File Cartridge?</v-card-title>
                 <v-card-text>
                     Are you sure you want to remove <strong>{{ cartridgeToDelete.name }}</strong>? This will remove its tunes from your search index.
                 </v-card-text>
@@ -455,7 +455,7 @@ export default {
             this.cartridgeToDelete = null;
             await this.loadCartridges();
             await ffBackend.reloadActiveCartridges();
-            this.showStatus(`Deleted cartridge "${deletedName}".`, 'success');
+            this.showStatus(`Deleted abc-file cartridge "${deletedName}".`, 'success');
         },
         showStatus(msg, type = 'success') {
             this.statusMessage = msg;

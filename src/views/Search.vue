@@ -60,7 +60,7 @@
                     <v-card v-if="hasCustomCartridges" class="pa-4 my-4" outlined>
                         <div class="subtitle-2 font-weight-bold grey--text text--darken-2 mb-2 d-flex align-center">
                             <v-icon left small color="primary">{{ icons.bookMultiple }}</v-icon>
-                            Active Search Cartridges
+                            Active Search ABC-File Cartridges
                         </div>
                         <v-card 
                             v-for="item in installedCartridges" 
