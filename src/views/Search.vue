@@ -23,7 +23,24 @@
                     class="mx-5 pt-8 pb-0"
                     sm="6"
                     md="8"
+                    style="position: relative;"
                 >
+                    <!-- Random Snarch Logo Link (Easter Egg on Search Page) -->
+                    <a
+                        v-if="randomSpotStyle"
+                        href="https://snarch.app"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Visit Snarch.app"
+                        class="snarchRandomLogoLink d-flex flex-column align-center text-decoration-none"
+                        :style="randomSpotStyle"
+                    >
+                        <img :src="snarchLogo" alt="Snarch" style="height: 34px; width: auto;" />
+                        <span class="grey--text text--darken-1 caption font-weight-medium mt-1" style="font-size: 0.75rem; letter-spacing: 0.02em; line-height: 1; opacity: 0.25;">
+                            snarch.app
+                        </span>
+                    </a>
+
                     <v-text-field
                         v-model="textQuery"
                         label="Search By Tune Name"
@@ -105,22 +122,6 @@
         >
             {{ snackbarText }}
         </v-snackbar>
-
-        <!-- Random Snarch Logo Link (Easter Egg on Search Page) -->
-        <a
-            v-if="randomSpotStyle"
-            href="https://snarch.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Visit Snarch.app"
-            class="snarchRandomLogoLink d-flex flex-column align-center text-decoration-none"
-            :style="randomSpotStyle"
-        >
-            <img :src="snarchLogo" alt="Snarch" style="height: 34px; width: auto;" />
-            <span class="grey--text text--darken-1 caption font-weight-medium mt-1" style="font-size: 0.75rem; letter-spacing: 0.02em; line-height: 1; opacity: 0.25;">
-                snarch.app
-            </span>
-        </a>
     </div>
 </template>
 
@@ -151,15 +152,15 @@ export default {
             snarchLogo: require('@/assets/snarch_logo.png'),
             randomSpotIndex: 0,
             spotStyles: [
-                // All spots positioned directly above the search bar on the right 50% of screen
-                { top: '120px', left: 'calc(50% + 20px)', position: 'absolute', zIndex: 5 },
-                { top: '120px', left: 'calc(50% + 120px)', position: 'absolute', zIndex: 5 },
-                { top: '125px', right: '12%', position: 'absolute', zIndex: 5 },
-                { top: '125px', right: '25%', position: 'absolute', zIndex: 5 },
-                { top: '130px', left: 'calc(50% + 60px)', position: 'absolute', zIndex: 5 },
-                { top: '130px', left: 'calc(50% + 170px)', position: 'absolute', zIndex: 5 },
-                { top: '135px', right: '15%', position: 'absolute', zIndex: 5 },
-                { top: '135px', right: '28%', position: 'absolute', zIndex: 5 },
+                // All spots positioned directly resting above search bar on the right 50%
+                { top: '-12px', right: '10px', position: 'absolute', zIndex: 5 },
+                { top: '-12px', right: '60px', position: 'absolute', zIndex: 5 },
+                { top: '-12px', right: '120px', position: 'absolute', zIndex: 5 },
+                { top: '-12px', right: '180px', position: 'absolute', zIndex: 5 },
+                { top: '-12px', left: '55%', position: 'absolute', zIndex: 5 },
+                { top: '-12px', left: '68%', position: 'absolute', zIndex: 5 },
+                { top: '-12px', left: '80%', position: 'absolute', zIndex: 5 },
+                { top: '-12px', left: '90%', position: 'absolute', zIndex: 5 },
             ],
 
             icons: {
