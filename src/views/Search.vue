@@ -112,10 +112,13 @@
             target="_blank"
             rel="noopener noreferrer"
             title="Visit Snarch.app"
-            class="snarchRandomLogoLink"
+            class="snarchRandomLogoLink d-flex flex-column align-center text-decoration-none"
             :style="randomSpotStyle"
         >
             <img :src="snarchLogo" alt="Snarch" style="height: 34px; width: auto;" />
+            <span class="grey--text text--darken-1 caption font-weight-medium mt-1" style="font-size: 0.75rem; letter-spacing: 0.02em; line-height: 1;">
+                snarch.app
+            </span>
         </a>
     </div>
 </template>
