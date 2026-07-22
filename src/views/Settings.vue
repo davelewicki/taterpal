@@ -47,7 +47,7 @@
 
             <!-- Cartridges List -->
             <v-list two-line subheader class="mb-4">
-                <v-subheader class="px-0 font-weight-bold">INSTALLED CARTRIDGES ({{ cartridges.length }})</v-subheader>
+                <v-subheader class="px-0 font-weight-bold">CARTRIDGES ({{ installedCount }} INSTALLED)</v-subheader>
                 <v-card 
                     v-for="item in cartridges" 
                     :key="item.id" 
@@ -379,8 +379,8 @@ export default {
         cartridgeToDelete: null
     }),
     computed: {
-        hasFolkFriendPreset() {
-            return this.cartridges.some(c => c.id === 'cartridge_original_folkfriend');
+        installedCount() {
+            return this.cartridges.filter(c => c.installed !== false).length;
         }
     },
     created: function() {

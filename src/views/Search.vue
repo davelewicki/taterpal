@@ -46,7 +46,7 @@
                             Active Search Cartridges
                         </div>
                         <v-card 
-                            v-for="item in cartridges" 
+                            v-for="item in installedCartridges" 
                             :key="item.id" 
                             outlined 
                             class="mb-2 pa-2"
@@ -171,8 +171,11 @@ export default {
         };
     },
     computed: {
+        installedCartridges() {
+            return this.cartridges.filter(c => c.installed !== false);
+        },
         hasCustomCartridges() {
-            return this.cartridges.some(c => !c.isDefault);
+            return this.installedCartridges.some(c => !c.isDefault);
         },
         randomSpotStyle() {
             return this.spotStyles[this.randomSpotIndex] || this.spotStyles[0];
